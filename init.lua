@@ -26,7 +26,7 @@ end
 
 local function check_list_item(c)
   for pos = 1 , #apps do
-    if c.class == apps[ pos ][ 1 ] or c.name == apps[ pos ][ 1 ] then
+    if string.match( c.class , apps[ pos ][ 1 ] ) or string.match( c.name , apps[ pos ][ 1 ] ) then
       return pos
     end
   end
@@ -188,7 +188,7 @@ local function manage_tag(c)
     end
   end
   for _,g in pairs( tag_groups ) do
-    if c.class == g or c.name == g then
+    if string.match( c.class , g ) or string.match( c.name , g ) then
       local t = awful.tag.add(c.class,{
         layout = awful.layout.suit.tile,
         screen = c.screen
