@@ -8,19 +8,34 @@ local capi = {
   , mouse = mouse
   , root = root
 }
-local vertical_margin = 2
 
 local launcher = {}
 local launcher_item = nil
 local apps = nil
 local list_launch = {}
 local tag_groups = {}
+local focus_color
 
-function launcher:set_vertical_margin( margin )
-  vertical_margin = margin
+function set_focus_color()
+  local hex_color_match = "[a-fA-F0-9][a-fA-F0-9]"
+  local channels1 = beautiful.fg_focus:gmatch(hex_color_match)
+  local channels2 = beautiful.bg_focus:gmatch(hex_color_match)
+  local ratio = 0.5
+  local result = "#"
+  for _ = 1,3 do
+      local bg_numeric_value = math.ceil(
+        tonumber("0x"..channels1())*ratio +
+        tonumber("0x"..channels2())*(1-ratio)
+      )
+      if bg_numeric_value < 0 then bg_numeric_value = 0 end
+      if bg_numeric_value > 255 then bg_numeric_value = 255 end
+      result = result .. string.format("%02x", bg_numeric_value)
+  end
+  focus_color = result
 end
 
 function launcher:set_tag_groups( tbl )
+  awful.screen.focused().selected_tag.name = tbl[1]
   tag_groups = tbl
 end
 
@@ -56,10 +71,8 @@ local function set_launcher_item( image, pos )
     launcher_item:add( child )
   end
 
-  child.children[1].left = 3
-  child.children[1].top = vertical_margin
-  child.children[1].right = 3
-  child.children[1].bottom = vertical_margin
+  child.children[1].left = 4
+  child.children[1].right = 4
 
   child.bg = beautiful.bg_normal
 
@@ -71,6 +84,7 @@ local function set_launcher_item( image, pos )
 end
 
 function launcher:create ( arg_apps )
+  set_focus_color()
   apps = arg_apps
   launcher_item = wibox.widget{
     layout = wibox.layout.fixed.horizontal
@@ -85,20 +99,17 @@ end
 local function set_decoration( class, flg )
   local button = launcher_item.children[ list_launch[ class ] ]
   if button == nil then return end
+
   if flg == 0 then
-    button.bg = beautiful.bg_focus
+    button.bg = focus_color
   elseif flg == 1 then
-    button.bg = beautiful.bg_normal
+    button.bg = beautiful.bg_focus
   elseif flg == 2 then
     button.bg = beautiful.bg_urgent
   elseif flg == 3 then
     button.bg = beautiful.bg_minimize
   end
 
-  button.children[1].left = 4
-  button.children[1].top = 0
-  button.children[1].right = 4
-  button.children[1].bottom = 0
 end
 
 local function set_button( c, icon )
@@ -142,8 +153,10 @@ local function mouse_event( class, button, proc )
     if ( cl.class == class ) then
       if flg_disable_first then
         local pos = check_list_item( cl )
-        if pos == 0 then
+        if pos == 0 and cl.icon then
           button:add( wibox.widget.imagebox( cl.icon ) )
+        elseif pos == 0 then
+          button:add( wibox.widget.imagebox( beautiful.awesome_icon ))
         else
           button:add( wibox.widget.imagebox( apps[ pos ][3] ))
         end
@@ -203,7 +216,11 @@ local function manage(c)
   if list_launch[ c.class ] == nil then
     local pos = check_list_item(c)
     if pos == 0 then
-      set_launcher_item( wibox.widget.imagebox( c.icon ), pos )
+      if c.icon then
+        set_launcher_item( wibox.widget.imagebox( c.icon ), pos )
+      else
+        set_launcher_item( wibox.widget.imagebox( beautiful.awesome_icon ), pos )
+      end
       list_launch[ c.class ] = #launcher_item.children
     else
       list_launch[ c.class ] = pos
@@ -336,33 +353,27 @@ local function set_shape( c )
   elseif button.shape then
     button.shape = nil
   end
+  button.shape_border_width = 2
 
   if c.floating and c.ontop and c.maximized then
-    button.shape_border_width = 4
     button.shape_border_color = beautiful.fg_normal
 
   elseif c.floating and c.ontop then
-    button.shape_border_width = 3
     button.shape_border_color = beautiful.bg_normal
 
   elseif c.floating and c.maximized then
-    button.shape_border_width = 3
     button.shape_border_color = beautiful.bg_urgent
 
   elseif c.ontop and c.maximized then
-    button.shape_border_width = 3
     button.shape_border_color = beautiful.fg_normal
 
   elseif c.floating then
-    button.shape_border_width = 2
     button.shape_border_color = beautiful.border_marked
 
   elseif c.ontop then
-    button.shape_border_width = 2
     button.shape_border_color = beautiful.fg_normal
 
   elseif c.maximized then
-    button.shape_border_width = 2
     button.shape_border_color = beautiful.bg_urgent
   end
 
