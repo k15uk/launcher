@@ -257,10 +257,16 @@ end
 
 local function unfocus(c)
   set_decoration( c.class, 1 )
+  if c.floating then
+    c.ontop = false
+  end
 end
 
 local function focus(c)
   set_decoration( c.class, 0 )
+  if c.floating then
+    c.ontop = true
+  end
 end
 
 local function urgent(c)
