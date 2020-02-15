@@ -306,17 +306,17 @@ local function get_next_tag( flg )
   return result
 end
 
-local function change_tag( flg )
+local function tag_rotate( flg )
   local next_tag = get_next_tag( flg )
   capi.mouse.screen.tags[ next_tag ]:view_only()
 end
 
 function launcher:tag_next ()
-  change_tag( true )
+  tag_rotate( true )
 end
 
 function launcher:tag_previous()
-  change_tag( false )
+  tag_rotate( false )
 end
 
 local function move_to_tag( flg )
