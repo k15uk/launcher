@@ -356,7 +356,7 @@ function launcher:move_to_new_tag ()
 end
 
 function launcher:launch ( i )
-    awful.spawn.with_shell( apps[ i ][ 2 ] )
+  awful.spawn.with_shell( apps[ i ][ 2 ] )
 end
 
 local function set_shape( c )
