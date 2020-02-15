@@ -319,6 +319,16 @@ function launcher:tag_previous()
   tag_rotate( false )
 end
 
+function launcher:tag_change( i )
+  for _, c in ipairs ( capi.client.get() ) do
+    if c.class == apps[ i ][ 1 ] then
+      capi.mouse.screen.tags[ c.first_tag.index ]:view_only()
+      return
+    end
+  end
+  awful.spawn.with_shell( apps[ i ][ 2 ] )
+end
+
 local function move_to_tag( flg )
   local next_tag = get_next_tag( flg )
   local tag = capi.client.focus.screen.tags[ next_tag ]
