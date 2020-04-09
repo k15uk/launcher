@@ -41,7 +41,7 @@ end
 
 local function check_list_item(c)
   for pos = 1 , #apps do
-    if string.match( c.class , apps[ pos ][ 1 ] ) or string.match( c.name , apps[ pos ][ 1 ] ) then
+    if apps[ pos ][ 1 ] == c.class then
       return pos
     end
   end
