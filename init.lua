@@ -14,13 +14,13 @@ local launcher_item = nil
 local apps = nil
 local list_launch = {}
 local tag_groups = {}
-local focus_color
+local unfocus_color
 
-function set_focus_color()
+function set_unfocus_color()
   local hex_color_match = "[a-fA-F0-9][a-fA-F0-9]"
   local channels1 = beautiful.fg_focus:gmatch(hex_color_match)
   local channels2 = beautiful.bg_focus:gmatch(hex_color_match)
-  local ratio = 0.5
+  local ratio = 0.3
   local result = "#"
   for _ = 1,3 do
       local bg_numeric_value = math.ceil(
@@ -31,7 +31,7 @@ function set_focus_color()
       if bg_numeric_value > 255 then bg_numeric_value = 255 end
       result = result .. string.format("%02x", bg_numeric_value)
   end
-  focus_color = result
+  unfocus_color = result
 end
 
 function launcher:set_tag_groups( tbl )
@@ -84,7 +84,7 @@ local function set_launcher_item( image, pos )
 end
 
 function launcher:create ( arg_apps )
-  set_focus_color()
+  set_unfocus_color()
   apps = arg_apps
   launcher_item = wibox.widget{
     layout = wibox.layout.fixed.horizontal
@@ -101,9 +101,9 @@ local function set_decoration( class, flg )
   if button == nil then return end
 
   if flg == 0 then
-    button.bg = focus_color
-  elseif flg == 1 then
     button.bg = beautiful.bg_focus
+  elseif flg == 1 then
+    button.bg = unfocus_color
   elseif flg == 2 then
     button.bg = beautiful.bg_urgent
   elseif flg == 3 then
